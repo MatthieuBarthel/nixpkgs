@@ -16,16 +16,21 @@ buildPythonPackage rec {
     sha256 = "sha256-2q1rxfx2GeWqfu1sOU4Fv4KUYWChPl3y4m3hdsuvNH4=";
   };
 
-  checkInputs = [ six pyyaml mock pytestCheckHook ];
-
   propagatedBuildInputs = lib.optionals (!isPy3k) [
     enum34
   ];
 
+  checkInputs = [ six pyyaml mock pytestCheckHook ];
+
+  preCheck = ''
+    # pytest can't import one file even with PYTHONPATH set
+    rm test/test_named_data.py
+  '';
+
   meta = with lib; {
     description = "Data-Driven/Decorated Tests, a library to multiply test cases";
     homepage = "https://github.com/txels/ddt";
+    maintainer = with maintainer; [ ];
     license = licenses.mit;
   };
-
 }
