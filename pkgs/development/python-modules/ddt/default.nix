@@ -30,7 +30,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Data-Driven/Decorated Tests, a library to multiply test cases";
     homepage = "https://github.com/txels/ddt";
-    maintainer = with maintainer; [ ];
+    maintainers = with maintainers; [ ];
     license = licenses.mit;
   };
 }
