@@ -33,7 +33,7 @@ buildPythonPackage rec {
     inherit src;
     sourceRoot = "source/${cargoRoot}";
     name = "${pname}-${version}";
-    hash = "sha256-i5BYYiILadKEPIJOaWdG1lZNSHfNQnwmc5j0D1jg/kc=";
+    hash = "sha256-V/WHZVvh8HtD8IUNk3V4e8/E2A8DebqY5i/lS1X6x3o=";
   };
 
   cargoRoot = "native";
