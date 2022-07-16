@@ -8,6 +8,7 @@
 , pytestCheckHook
 , pythonOlder
 , six
+, urllib3
 }:
 
 buildPythonPackage rec {
@@ -32,10 +33,11 @@ buildPythonPackage rec {
   checkInputs = [
     dpkt
     pytestCheckHook
+    urllib3
   ];
 
   disabledTests = [
-    # socket.gaierror: [Errno -2] Name or service not known
+    # socket.gaierror: [Errno -3] Temporary failure in name resolution
     "test_client_simple"
     "test_client_without_leading_slas"
     "test_request_with_headers"
@@ -50,8 +52,8 @@ buildPythonPackage rec {
   ];
 
   meta = with lib; {
-    homepage = "https://github.com/gwik/geventhttpclient";
-    description = "HTTP client library for gevent";
+    homepage = "https://github.com/geventhttpclient/geventhttpclient";
+    description = "High performance, concurrent HTTP client library using gevent";
     license = licenses.mit;
     maintainers = with maintainers; [ koral ];
   };
