@@ -1,6 +1,5 @@
 { lib
 , buildPythonPackage
-, pythonAtLeast
 , fetchFromGitHub
 , attrs
 , exceptiongroup
