@@ -529,5 +529,6 @@ in
       };
   };
 
+  meta.doc = ./postal.md;
   meta.maintainers = with lib.maintainers; [ MatthieuBarthel ];
 }
