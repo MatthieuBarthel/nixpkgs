@@ -57,7 +57,7 @@
         # aarch64 tests are flacky with Type=notify
         # while it works fine on a real host
         (lib.mkIf pkgs.stdenv.hostPlatform.isAarch64 {
-          systemd.services.postal-web.ServiceConfig.Type = lib.mkForce "simple";
+          systemd.services.postal-web.serviceConfig.Type = lib.mkForce "simple";
         })
       ];
   };
