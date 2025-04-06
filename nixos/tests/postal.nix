@@ -28,31 +28,38 @@
         '';
 
       in
-      {
-        virtualisation = {
-          memorySize = 4096;
-          cores = 2;
-          useNixStoreImage = true;
-          writableStore = false;
-        };
+      lib.mkMerge [
+        {
+          virtualisation = {
+            memorySize = 4096;
+            cores = 2;
+            useNixStoreImage = true;
+            writableStore = false;
+          };
 
-        services.postal = {
-          enable = true;
-          domain = "localhost";
-          environmentFile = envFile;
-          workers = 2;
-          settings = {
-            postal = {
-              web_protocol = "http";
-              signing_key_path = signingKey;
-            };
-            smtp = {
-              username = "username";
-              from_address = "community@nixos.org";
+          services.postal = {
+            enable = true;
+            domain = "localhost";
+            environmentFile = envFile;
+            workers = 2;
+            settings = {
+              postal = {
+                web_protocol = "http";
+                signing_key_path = signingKey;
+              };
+              smtp = {
+                username = "username";
+                from_address = "community@nixos.org";
+              };
             };
           };
-        };
-      };
+        }
+        # aarch64 tests are flacky with Type=notify
+        # while it works fine on a real host
+        (lib.mkIf pkgs.stdenv.hostPlatform.isAarch64 {
+          systemd.services.postal-web.ServiceConfig.Type = lib.mkForce "simple";
+        })
+      ];
   };
 
   testScript =
@@ -74,6 +81,7 @@
       machine.wait_for_unit("postal-worker@1.service")
       machine.wait_for_unit("postal-worker@2.service")
 
+      machine.wait_for_open_port(5000)
       machine.wait_for_open_port(9091)
       machine.wait_for_open_port(10130)
       machine.wait_for_open_port(10131)
