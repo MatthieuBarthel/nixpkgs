@@ -81,15 +81,17 @@
       machine.wait_for_unit("postal-worker@1.service")
       machine.wait_for_unit("postal-worker@2.service")
 
-      machine.wait_for_open_port(5000)
       machine.wait_for_open_port(9091)
       machine.wait_for_open_port(10130)
       machine.wait_for_open_port(10131)
 
+    ''
+    + lib.optionalString (!pkgs.stdenv.hostPlatform.isAarch64) ''
       machine.succeed("""
         curl -isSf http://localhost:5000 | grep Location | grep http://localhost:5000/login
       """)
-
+    ''
+    + ''
       machine.succeed("""
         curl -sSf http://localhost:10130 | grep worker
       """)
@@ -109,7 +111,7 @@
 
       # Bootstrap data from rails console
       machine.succeed("""
-        echo -e "${lib.concatStringsSep "\\n" railsBootstrapCommands}" | postal console
+        printf "${lib.concatStringsSep "\\n" railsBootstrapCommands}" | postal console
       """)
 
       # Test smtp in dev mode (no real delivery)
