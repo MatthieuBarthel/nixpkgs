@@ -109,6 +109,8 @@
         printf "john.doe@nixos.org\\nJohn\\nDoe\\nPassw0rd!" | postal make-user
       """)
 
+    ''
+    + lib.optionalString (!pkgs.stdenv.hostPlatform.isAarch64) ''
       # Bootstrap data from rails console
       machine.succeed("""
         printf "${lib.concatStringsSep "\\n" railsBootstrapCommands}" | postal console
