@@ -29,6 +29,7 @@ cfghead = """# Edit this configuration file to define what should be installed o
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      @@nixbook_base_path@@
     ];
 
 """
@@ -385,6 +386,15 @@ def run():
         if gs.value("bootLoader") is None
         else gs.value("bootLoader")["installPath"]
     )
+    # Nixbook - pre install
+    if gs.value("packagechooser_packagechooser") == "nixbook":
+        variables["nixbook_base_path"] = "../nixbook/base.nix"
+    elif gs.value("packagechooser_packagechooser") == "nixbook-lite":
+        variables["nixbook_base_path"] = "../nixbook/base_lite.nix"
+
+    libcalamares.utils.host_env_process_output(
+        ["git", "clone", "https://github.com/mkellyxp/nixbook", root_mount_point + "/etc/nixbook"], None
+    )
 
     # Pick config parts and prepare substitution
 
@@ -680,7 +690,7 @@ def run():
         cfg += cfgfirefox
 
     # Check if unfree packages are allowed
-    free = True
+    free = False
     if gs.value("nixos_allow_unfree"):
         free = False
         cfg += cfgunfree
@@ -829,5 +839,37 @@ def run():
             return (_("nixos-install failed"), _(output))
     except:
         return (_("nixos-install failed"), _("Installation failed to complete"))
+
+    # Nixbook - post install
+    nixbook_post_install_script_path = "/tmp/nixbook_post_install.sh"
+
+    nixbook_post_install_script = """#!/usr/bin/env bash
+su {user} -c "rm -rf ~/*"
+su {user} -c "mkdir -p ~/Desktop ~/Documents ~/Downloads ~/Pictures ~/.local/share"
+""".format(user = gs.value("username"))
+
+    if gs.value("packagechooser_packagechooser") == "nixbook":
+        nixbook_post_install_script += """
+su {user} -c "cp -R /etc/nixbook/config/config ~/.config"
+su {user} -c "cp /etc/nixbook/config/desktop/* ~/Desktop/"
+su {user} -c "cp -R /etc/nixbook/config/applications ~/.local/share/applications"
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+""".format(user = gs.value("username"))
+
+    elif gs.value("packagechooser_packagechooser") == "nixbook-lite":
+        nixbook_post_install_script += """
+su {user} -c "cp -R /etc/nixbook/config/config_lite ~/.config"
+su {user} -c "cp /etc/nixbook/config/desktop_lite/* ~/Desktop/"
+su {user} -c "cp -R /etc/nixbook/config/applications_lite ~/.local/share/applications"
+""".format(user = gs.value("username"))
+
+    with open(root_mount_point + nixbook_post_install_script_path, 'w') as f:
+        f.write(nixbook_post_install_script)
+
+    os.chmod(root_mount_point + nixbook_post_install_script_path, 0o775)
+
+    libcalamares.utils.host_env_process_output(["nixos-enter", "--root", root_mount_point, "--command", nixbook_post_install_script_path], None)
+
+    os.remove(root_mount_point + nixbook_post_install_script_path)
 
     return None
