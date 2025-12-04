@@ -393,7 +393,7 @@ def run():
         variables["nixbook_base_path"] = "../nixbook/base_lite.nix"
 
     libcalamares.utils.host_env_process_output(
-        ["git", "clone", "https://github.com/mkellyxp/nixbook", root_mount_point + "/etc/nixbook"], None
+        ["git", "clone", "-b", "testing", "https://github.com/mkellyxp/nixbook", root_mount_point + "/etc/nixbook"], None
     )
 
     # Pick config parts and prepare substitution
